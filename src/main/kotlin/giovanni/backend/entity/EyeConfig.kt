@@ -1,5 +1,6 @@
 package giovanni.backend.entity
 
+import giovanni.backend.dto.EyeConfigResponse
 import jakarta.persistence.*
 import java.util.*
 
@@ -12,19 +13,32 @@ import java.util.*
 )
 data class EyeConfig(
     @Id
-    @GeneratedValue
-    val id: UUID? = null,
+    val id: UUID = UUID.randomUUID(),
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    val side: EyeSide,
+
+    @Column(nullable = false, precision = 4, scale = 2)
+    val sph: Double,
+
+    @Column(nullable = false, precision = 4, scale = 2)
+    val cyl: Double,
+
+    @Column(nullable = false)
+    val achse: Int,
+
+    @Column(nullable = false, precision = 4, scale = 1)
+    val pd: Double,
+
+    @Column(precision = 4, scale = 2)
+    val prism: Double? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "glasses_config_id", nullable = false)
-    val glassesConfig: GlassesConfig,
-
-    @Column(nullable = false, length = 1)
-    val side: Char, // 'R' or 'L'
-
-    val sph: String?,
-    val cyl: String?,
-    val achse: String?,
-    val pd: String?,
-    val prism: String?
+    val glassesConfig: GlassesConfig
 )
+
+enum class EyeSide {
+    LEFT, RIGHT
+}

@@ -1,5 +1,6 @@
 package giovanni.backend.entity
 
+import giovanni.backend.dto.CustomerResponse
 import jakarta.persistence.*
 import java.time.LocalDate
 import java.util.UUID

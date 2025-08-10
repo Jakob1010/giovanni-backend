@@ -1,5 +1,6 @@
 package giovanni.backend.entity
 
+import giovanni.backend.dto.GlassesConfigResponse
 import jakarta.persistence.*
 import java.time.Instant
 import java.util.*
@@ -15,7 +16,7 @@ data class GlassesConfig(
     @JoinColumn(name = "customer_id", nullable = false)
     val customer: Customer,
 
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant = Instant.now(),
 
     @Column(columnDefinition = "text")
