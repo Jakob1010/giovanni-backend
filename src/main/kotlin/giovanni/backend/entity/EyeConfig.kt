@@ -19,19 +19,19 @@ data class EyeConfig(
     @Enumerated(EnumType.STRING)
     val side: EyeSide,
 
-    @Column(nullable = false, precision = 4, scale = 2)
+    @Column(nullable = false)
     val sph: Double,
 
-    @Column(nullable = false, precision = 4, scale = 2)
+    @Column(nullable = false)
     val cyl: Double,
 
     @Column(nullable = false)
     val achse: Int,
 
-    @Column(nullable = false, precision = 4, scale = 1)
+    @Column(nullable = false)
     val pd: Double,
 
-    @Column(precision = 4, scale = 2)
+    @Column
     val prism: Double? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
