@@ -1,16 +1,41 @@
-# Compiled class file
-*.class
+# === Build output ===
+/build/
+/out/
+/target/
+.gradle/
+.kotlin/
 
-# Log file
+# === IDE files ===
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# VS Code
+.vscode/
+
+# === Logs & temp ===
 *.log
+*.tmp
+*.temp
+*.swp
 
-# BlueJ files
-*.ctxt
+# === OS-specific ===
+.DS_Store
+Thumbs.db
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+# === Java / Kotlin specific ===
+*.class
+hs_err_pid*
+replay_pid*
 
-# Package Files #
+# === Archives ===
 *.jar
 *.war
 *.nar
@@ -19,9 +44,9 @@
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+# === Docker ===
+# Uncomment if you don't want to track local DB data
+# /pg_data/
 
-# Kotlin Gradle plugin data, see https://kotlinlang.org/docs/whatsnew20.html#new-directory-for-kotlin-data-in-gradle-projects
-.kotlin/
+# === Node/Yarn (if frontend in same repo) ===
+node_modules/
