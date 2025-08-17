@@ -1,6 +1,5 @@
 package giovanni.backend.entity
 
-import giovanni.backend.dto.GlassesConfigResponse
 import jakarta.persistence.*
 import java.time.Instant
 import java.util.*
@@ -22,6 +21,10 @@ data class GlassesConfig(
     @Column(columnDefinition = "text")
     val note: String? = null,
 
-    @OneToMany(mappedBy = "glassesConfig", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(
+        mappedBy = "glassesConfig",
+        cascade = [CascadeType.PERSIST, CascadeType.MERGE],
+        orphanRemoval = true
+    )
     val eyeConfigs: MutableList<EyeConfig> = mutableListOf()
 )

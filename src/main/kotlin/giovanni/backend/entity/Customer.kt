@@ -1,6 +1,5 @@
 package giovanni.backend.entity
 
-import giovanni.backend.dto.CustomerResponse
 import jakarta.persistence.*
 import java.time.LocalDate
 import java.util.UUID
@@ -30,6 +29,10 @@ data class Customer(
     val telefon: String?,
     val email: String?,
 
-    @OneToMany(mappedBy = "customer", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(
+        mappedBy = "customer",
+        cascade = [CascadeType.PERSIST, CascadeType.MERGE],
+        orphanRemoval = true
+    )
     val glassesConfigs: MutableList<GlassesConfig> = mutableListOf()
 )
