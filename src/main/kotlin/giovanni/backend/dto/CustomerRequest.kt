@@ -10,5 +10,5 @@ data class CustomerRequest(
     val anschrift: String,
     val telefon: String?,
     val email: String?,
-    val glassesConfigs: List<GlassesConfigRequest> = emptyList()
+    val glassesConfigs: List<GlassesConfigRequest>? = null
 )
