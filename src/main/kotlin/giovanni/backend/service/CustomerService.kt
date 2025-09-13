@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import giovanni.backend.repository.CustomerRepository
+import java.util.UUID
 
 
 @Service
@@ -65,5 +66,22 @@ class CustomerService(
         log.info("Customer created with ID: {}", saved.id)
 
         return saved.toDto()
+    }
+
+    fun searchCustomers(vorname: String?, nachname: String?): List<CustomerResponse> {
+        log.info("Searching customers with filter: $vorname, $nachname")
+
+        val customers = customerRepository.findAll().filter { c ->
+            (vorname == null || c.vorname.contains(vorname, ignoreCase = true)) &&
+            (nachname == null || c.familienname.contains(nachname, ignoreCase = true))
+        }
+
+        return customers.map { it.toDto() }
+    }
+
+    fun getCustomerById(id: UUID): CustomerResponse {
+        val customer = customerRepository.findById(id)
+            .orElseThrow { NoSuchElementException("Customer with id $id not found") }
+        return customer.toDto()
     }
 }

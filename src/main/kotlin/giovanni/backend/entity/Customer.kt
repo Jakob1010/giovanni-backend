@@ -35,4 +35,15 @@ data class Customer(
         orphanRemoval = true
     )
     val glassesConfigs: MutableList<GlassesConfig> = mutableListOf()
-)
+) {
+    // for JPA
+    constructor() : this(
+        geschlecht = "",
+        geburtstag = LocalDate.MIN,
+        familienname = "",
+        vorname = "",
+        anschrift = "",
+        telefon = null,
+        email = null
+    )
+}
