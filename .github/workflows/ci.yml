@@ -1,0 +1,127 @@
+name: CI Build and Deploy (Giovanni)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '**'  # Runs on all branches when a PR is created
+
+jobs:
+  verify:
+    name: Verify Code & Build
+    runs-on: [self-hosted, linux]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: 21
+          distribution: 'temurin'
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Build project
+        run: ./gradlew build --no-daemon
+
+      - name: Run tests
+        run: ./gradlew test --no-daemon
+
+  build-and-deploy:
+    name: Build & Deploy Giovanni
+    needs: verify
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, linux]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: 21
+          distribution: 'temurin'
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Install dependencies
+        run: ./gradlew build --no-daemon
+
+      - name: Run tests
+        run: ./gradlew test --no-daemon
+
+      - name: Build JAR file
+        run: ./gradlew bootJar --no-daemon
+
+      - name: Verify JAR file exists
+        run: |
+          if [ ! -f build/libs/*.jar ]; then
+            echo "JAR file not found!"
+            exit 1
+          else
+            echo "JAR file found!"
+          fi
+
+      - name: Deploy application
+        run: |
+          # Define paths
+          JAR_FILE=$(realpath build/libs/*SNAPSHOT.jar)
+          DEPLOY_DIR=$(realpath /root/depl/giovanni)
+          
+          # Create deploy directory if it doesn't exist
+          mkdir -p $DEPLOY_DIR
+          
+          # Stop existing application
+          if [ -f $DEPLOY_DIR/app.pid ]; then
+            PID=$(cat $DEPLOY_DIR/app.pid)
+            echo "Stopping Giovanni with PID $PID"
+            kill -TERM $PID || echo "No existing process found"
+            sleep 2
+          fi
+          
+          # Copy new JAR to deployment directory
+          cp $JAR_FILE $DEPLOY_DIR/app.jar
+          
+          # Run Giovanni on port 8081
+          RUNNER_TRACKING_ID="" nohup java -jar "$DEPLOY_DIR/app.jar" --server.port=8081 > "$DEPLOY_DIR/app.log" 2>&1 &
+          disown
+          
+          # Save the process ID
+          echo $! > $DEPLOY_DIR/app.pid
+          
+          # Wait for application to start by polling its health endpoint
+          echo "Waiting for Giovanni to be ready..."
+          for i in {1..40}; do
+            if curl -s http://localhost:8081/actuator/health | grep -q '"status":"UP"'; then
+              echo "Giovanni is up and running."
+              break
+            else
+              echo "Waiting... attempt $i"
+              sleep 1
+            fi
+          done
+          
+          # If the application fails to come online within 40 seconds
+          if [ $i -eq 40 ]; then
+            echo "Giovanni did not respond in time."
+            exit 1
+          fi
+          
+          echo "Giovanni deployed and started successfully."
