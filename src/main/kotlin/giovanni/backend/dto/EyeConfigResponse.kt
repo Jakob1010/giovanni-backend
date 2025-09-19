@@ -5,10 +5,10 @@ import java.util.UUID
 
 data class EyeConfigResponse(
     val id: UUID,
-    val side: EyeSide,
-    val sph: Double,
-    val cyl: Double,
-    val achse: Int,
-    val pd: Double,
+    val side: EyeSide? = null,
+    val sph: Double? = null,
+    val cyl: Double? = null,
+    val achse: Int? = null,
+    val pd: Double? = null,
     val prism: Double?
 )

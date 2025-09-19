@@ -2,10 +2,8 @@ package giovanni.backend.service
 
 import giovanni.backend.dto.CustomerRequest
 import giovanni.backend.dto.CustomerResponse
-import giovanni.backend.entity.Customer
-import giovanni.backend.entity.EyeConfig
-import giovanni.backend.entity.GlassesConfig
 import giovanni.backend.mapper.toDto
+import giovanni.backend.mapper.toEntity
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -22,66 +20,39 @@ class CustomerService(
     @Transactional
     fun addCustomer(request: CustomerRequest): CustomerResponse {
         log.info("Adding new customer: {} {}", request.vorname, request.familienname)
-
-        val customer = Customer(
-            geschlecht = request.geschlecht,
-            geburtstag = request.geburtstag,
-            familienname = request.familienname,
-            vorname = request.vorname,
-            anschrift = request.anschrift,
-            telefon = request.telefon,
-            email = request.email
-        )
-
-        // iterate over all glasses configs
-        request.glassesConfigs?.forEach { gcReq ->
-            gcReq.eyes?.size?.let {
-                if (it > 2) {
-                    throw IllegalArgumentException("A glasses config may have at most 2 eye configs")
-                }
-            }
-
-            val glassesConfig = GlassesConfig(
-                customer = customer,
-                note = gcReq.note
-            )
-
-            gcReq.eyes?.forEach { eyeReq ->
-                val eyeConfig = EyeConfig(
-                    side = eyeReq.side,
-                    sph = eyeReq.sph.toDouble(),
-                    cyl = eyeReq.cyl.toDouble(),
-                    achse = eyeReq.achse,
-                    pd = eyeReq.pd.toDouble(),
-                    prism = eyeReq.prism?.toDouble(),
-                    glassesConfig = glassesConfig
-                )
-                glassesConfig.eyeConfigs.add(eyeConfig)
-            }
-
-            customer.glassesConfigs.add(glassesConfig)
-        }
-
+        val customer = request.toEntity()
         val saved = customerRepository.save(customer)
         log.info("Customer created with ID: {}", saved.id)
-
         return saved.toDto()
     }
 
     fun searchCustomers(vorname: String?, nachname: String?): List<CustomerResponse> {
         log.info("Searching customers with filter: $vorname, $nachname")
-
-        val customers = customerRepository.findAll().filter { c ->
-            (vorname == null || c.vorname.contains(vorname, ignoreCase = true)) &&
-            (nachname == null || c.familienname.contains(nachname, ignoreCase = true))
-        }
-
-        return customers.map { it.toDto() }
+        return customerRepository.findAll()
+            .filter {
+                (vorname == null || it.vorname?.contains(vorname, ignoreCase = true) == true) &&
+                        (nachname == null || it.familienname?.contains(nachname, ignoreCase = true) == true)
+            }
+            .map { it.toDto() }
     }
 
-    fun getCustomerById(id: UUID): CustomerResponse {
-        val customer = customerRepository.findById(id)
+    fun getCustomerById(id: UUID): CustomerResponse =
+        customerRepository.findById(id)
             .orElseThrow { NoSuchElementException("Customer with id $id not found") }
-        return customer.toDto()
+            .toDto()
+
+    @Transactional
+    fun updateCustomer(id: UUID, request: CustomerRequest): CustomerResponse {
+        val newCustomer = request.toEntity().copy(id = id)
+        return customerRepository.save(newCustomer).toDto()
+    }
+
+    @Transactional
+    fun deleteCustomer(id: UUID) {
+        if (!customerRepository.existsById(id)) {
+            throw NoSuchElementException("Customer with id $id not found")
+        }
+        customerRepository.deleteById(id)
     }
 }
+

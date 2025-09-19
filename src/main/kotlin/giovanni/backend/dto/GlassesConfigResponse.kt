@@ -6,5 +6,5 @@ data class GlassesConfigResponse(
     val id: UUID,
     val createdAt: java.time.Instant,
     val note: String?,
-    val eyeConfigs: List<EyeConfigResponse>
+    val eyes: List<EyeConfigResponse>
 )

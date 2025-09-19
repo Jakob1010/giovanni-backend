@@ -10,28 +10,17 @@ data class Customer(
     @Id
     @GeneratedValue
     val id: UUID? = null,
-
-    @Column(nullable = false)
-    val geschlecht: String,
-
-    @Column(nullable = false)
-    val geburtstag: LocalDate,
-
-    @Column(nullable = false)
-    val familienname: String,
-
-    @Column(nullable = false)
-    val vorname: String,
-
-    @Column(nullable = false)
-    val anschrift: String,
-
-    val telefon: String?,
-    val email: String?,
+    var geschlecht: String? = null,
+    var geburtstag: LocalDate? = null,
+    var familienname: String? = null,
+    var vorname: String? = null,
+    var anschrift: String? = null,
+    var telefon: String? = null,
+    var email: String? = null,
 
     @OneToMany(
         mappedBy = "customer",
-        cascade = [CascadeType.PERSIST, CascadeType.MERGE],
+        cascade = [CascadeType.ALL, CascadeType.MERGE],
         orphanRemoval = true
     )
     val glassesConfigs: MutableList<GlassesConfig> = mutableListOf()

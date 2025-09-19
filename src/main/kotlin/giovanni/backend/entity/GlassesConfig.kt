@@ -23,7 +23,7 @@ data class GlassesConfig(
 
     @OneToMany(
         mappedBy = "glassesConfig",
-        cascade = [CascadeType.PERSIST, CascadeType.MERGE],
+        cascade = [CascadeType.ALL],
         orphanRemoval = true
     )
     val eyeConfigs: MutableList<EyeConfig> = mutableListOf()
